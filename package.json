@@ -1,0 +1,27 @@
+{
+  "name": "ward26-problem-reporting",
+  "version": "1.0.0",
+  "description": "Ward 26 Problem Reporting System - MERN Stack Application",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix backend",
+    "client": "npm start --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "seed": "node backend/scripts/seedAdmin.js",
+    "start": "npm start --prefix backend"
+  },
+  "keywords": [
+    "ward",
+    "civic",
+    "problem-reporting",
+    "mern",
+    "bengali"
+  ],
+  "author": "Ward 26 Administration",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
