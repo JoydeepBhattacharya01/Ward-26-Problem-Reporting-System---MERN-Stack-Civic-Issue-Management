@@ -17,10 +17,24 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    // Format phone number input
+    if (name === 'phone') {
+      // Remove any non-digit characters
+      const cleanedValue = value.replace(/\D/g, '');
+      // Limit to 11 digits
+      const formattedValue = cleanedValue.slice(0, 11);
+      setFormData({
+        ...formData,
+        [name]: formattedValue
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -34,6 +48,13 @@ const RegisterPage = () => {
 
     if (formData.password.length < 6) {
       toast.error('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে');
+      return;
+    }
+
+    // Phone number validation
+    const phoneRegex = /^01[3-9]\d{8}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error('সঠিক বাংলাদেশী মোবাইল নাম্বার দিন (01XXXXXXXXX)');
       return;
     }
 
@@ -108,7 +129,7 @@ const RegisterPage = () => {
             {/* Phone */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                মোবাইল নাম্বার *
+                মোবাইল নাম্বার (Mobile Number) *
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -120,10 +141,14 @@ const RegisterPage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   className="input-field pl-10"
-                  placeholder="০১XXXXXXXXX"
+                  placeholder="01XXXXXXXXX"
                   required
+                  maxLength="11"
                 />
               </div>
+              <p className="text-sm text-gray-500 mt-1">
+                বাংলাদেশী মোবাইল নাম্বার (01 দিয়ে শুরু, ১১ সংখ্যা)
+              </p>
             </div>
 
             {/* Email */}

@@ -24,7 +24,7 @@ const problemSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['electricity', 'drainage', 'road', 'festival', 'other']
+    enum: ['electricity', 'drainage', 'road', 'festival', 'medical_emergency', 'other']
   },
   subcategory: {
     type: String,

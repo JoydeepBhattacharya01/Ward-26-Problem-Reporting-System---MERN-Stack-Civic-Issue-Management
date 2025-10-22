@@ -37,6 +37,40 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// WhatsApp test route
+app.post('/api/test-whatsapp', async (req, res) => {
+  try {
+    const { sendWhatsAppNotification } = require('./utils/notifications');
+    
+    const testData = {
+      category: 'electricity',
+      subcategory: 'বিদ্যুৎ বিভ্রাট',
+      description: 'API পরীক্ষামূলক বার্তা',
+      location: {
+        address: 'ঢাকা, বাংলাদেশ'
+      },
+      userName: 'API পরীক্ষা',
+      userPhone: '+8801712345678',
+      userEmail: 'test@example.com',
+      createdAt: new Date()
+    };
+    
+    const result = await sendWhatsAppNotification(testData);
+    
+    res.json({
+      success: result,
+      message: result ? 'WhatsApp notification sent successfully' : 'Failed to send WhatsApp notification'
+    });
+  } catch (error) {
+    console.error('WhatsApp test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'WhatsApp test failed',
+      error: error.message
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -51,25 +85,23 @@ app.use((req, res) => {
   res.status(404).json({ message: 'রাউট পাওয়া যায়নি' });
 });
 
-// MongoDB connection
+// MongoDB connection (use local MongoDB)
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const localMongoURI = 'mongodb://localhost:27017/ward26db';
+    const conn = await mongoose.connect(localMongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      maxPoolSize: 10, // Maintain up to 10 socket connections
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    console.log('Starting server without database connection...');
   }
 };
 
 // Start server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
@@ -78,6 +110,19 @@ connectDB().then(() => {
     ║  ২৬ নম্বর ওয়ার্ড - সার্ভার চালু আছে      ║
     ║  Port: ${PORT}                              ║
     ║  Environment: ${process.env.NODE_ENV || 'development'}              ║
+    ║  WhatsApp Test: POST /api/test-whatsapp    ║
+    ╚════════════════════════════════════════════╝
+    `);
+  });
+}).catch(() => {
+  // Start server even if DB connection fails
+  app.listen(PORT, () => {
+    console.log(`
+    ╔════════════════════════════════════════════╗
+    ║  ২৬ নম্বর ওয়ার্ড - সার্ভার চালু আছে      ║
+    ║  Port: ${PORT} (No Database)               ║
+    ║  Environment: ${process.env.NODE_ENV || 'development'}              ║
+    ║  WhatsApp Test: POST /api/test-whatsapp    ║
     ╚════════════════════════════════════════════╝
     `);
   });
@@ -86,6 +131,4 @@ connectDB().then(() => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error(`Unhandled Rejection: ${err.message}`);
-  // Close server & exit process
-  process.exit(1);
 });

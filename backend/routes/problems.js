@@ -88,13 +88,15 @@ router.post('/', protect, upload.array('images', 5), [
       requirements
     });
 
-    // Send notifications to admins
-    try {
-      await notifyAdmins(problem);
-    } catch (error) {
-      console.error('Notification error (non-blocking):', error);
-      // Continue even if notifications fail
-    }
+    // Send notifications to admins (non-blocking)
+    setImmediate(async () => {
+      try {
+        await notifyAdmins(problem);
+      } catch (error) {
+        console.error('Notification error (non-blocking):', error);
+        // Continue even if notifications fail
+      }
+    });
 
     res.status(201).json({
       message: 'সমস্যা সফলভাবে রিপোর্ট করা হয়েছে',

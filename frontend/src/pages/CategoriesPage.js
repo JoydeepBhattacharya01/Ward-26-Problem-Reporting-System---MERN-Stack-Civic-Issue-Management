@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaBolt, FaWater, FaRoad, FaGift, FaEllipsisH, FaSignOutAlt } from 'react-icons/fa';
+import { FaBolt, FaWater, FaRoad, FaGift, FaEllipsisH, FaSignOutAlt, FaAmbulance } from 'react-icons/fa';
+import Footer from '../components/Footer';
 
 const CategoriesPage = () => {
   const navigate = useNavigate();
@@ -39,6 +40,14 @@ const CategoriesPage = () => {
       color: 'from-pink-400 to-purple-500',
       bgColor: 'bg-pink-50',
       iconColor: 'text-pink-600'
+    },
+    {
+      id: 'medical_emergency',
+      name: 'চিকিৎসা জরুরি অবস্থা',
+      icon: FaAmbulance,
+      color: 'from-red-400 to-red-600',
+      bgColor: 'bg-red-50',
+      iconColor: 'text-red-600'
     },
     {
       id: 'other',
@@ -115,10 +124,11 @@ const CategoriesPage = () => {
             onClick={() => navigate('/my-reports')}
             className="btn-secondary"
           >
-            আমার রিপোর্টসমূহ দেখুন
+            আমার রিপোর্টসমূহ দেখুন (View My Reports)
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

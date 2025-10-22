@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "install-all": "npm install --prefix backend && npm install --prefix frontend",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\"",
     "server": "npm run dev --prefix backend",
     "client": "npm start --prefix frontend",
     "build": "npm run build --prefix frontend",
     "seed": "node backend/scripts/seedAdmin.js",
-    "start": "npm start --prefix backend"
+    "start": "npm start --prefix backend",
+    "fix-ports": "node fix-port-conflict.js",
+    "start-app": "./start-app.sh"
   },
   "keywords": [
     "ward",

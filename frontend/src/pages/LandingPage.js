@@ -128,6 +128,13 @@ const LandingPage = () => {
               সেবায় নিয়োজিত আছি আমরা
             </p>
           </div>
+          
+          {/* Copyright */}
+          <div className="mt-6">
+            <p className="text-gray-500 text-sm">
+              © ২০২৫ আমার এলাকা আমার দায়িত্ব | All rights reserved
+            </p>
+          </div>
         </div>
       </div>
     </div>

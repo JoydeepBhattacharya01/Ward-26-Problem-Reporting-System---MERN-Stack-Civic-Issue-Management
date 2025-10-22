@@ -28,6 +28,7 @@ const ReportProblemPage = () => {
     drainage: 'নর্দমা সমস্যা',
     road: 'রাস্তাঘাট সমস্যা',
     festival: 'উৎসব',
+    medical_emergency: 'চিকিৎসা জরুরি অবস্থা',
     other: 'অন্যান্য'
   };
 
@@ -52,6 +53,18 @@ const ReportProblemPage = () => {
     festival: [
       'প্রাইভেট পূজা',
       'কমিটি পূজা'
+    ],
+    medical_emergency: [
+      'হার্ট অ্যাটাক (Heart Attack)',
+      'স্ট্রোক (Stroke)', 
+      'শ্বাসকষ্ট (Breathing Problem)',
+      'গুরুতর দুর্ঘটনা (Serious Accident)',
+      'প্রসবকালীন জরুরি অবস্থা (Pregnancy Emergency)',
+      'খিঁচুনি (Seizure)',
+      'অজ্ঞান হয়ে যাওয়া (Unconsciousness)',
+      'গুরুতর রক্তক্ষরণ (Severe Bleeding)',
+      'বিষক্রিয়া (Poisoning)',
+      'অন্যান্য জরুরি অবস্থা (Other Emergency)'
     ],
     other: ['সাধারণ সমস্যা']
   };
@@ -200,7 +213,7 @@ const ReportProblemPage = () => {
           onClick={() => navigate('/categories')}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-semibold"
         >
-          <FaArrowLeft /> ফিরে যান
+          <FaArrowLeft /> ফিরে যান (Go Back)
         </button>
 
         <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8">
@@ -209,7 +222,7 @@ const ReportProblemPage = () => {
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
               {categoryNames[category]}
             </h2>
-            <p className="text-gray-600">সমস্যার বিস্তারিত তথ্য দিন</p>
+            <p className="text-gray-600">সমস্যার বিস্তারিত তথ্য দিন (Provide detailed information about the problem)</p>
           </div>
 
           {/* Form */}
@@ -217,7 +230,7 @@ const ReportProblemPage = () => {
             {/* Subcategory */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                সমস্যার ধরন *
+                সমস্যার ধরন (Problem Type) *
               </label>
               <select
                 name="subcategory"
@@ -226,7 +239,7 @@ const ReportProblemPage = () => {
                 className="input-field"
                 required
               >
-                <option value="">নির্বাচন করুন</option>
+                <option value="">নির্বাচন করুন (Select One)</option>
                 {subcategories[category]?.map((sub) => (
                   <option key={sub} value={sub}>
                     {sub}
@@ -239,7 +252,7 @@ const ReportProblemPage = () => {
             {category === 'electricity' && (
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
-                  খুঁটির নাম্বার
+                  খুঁটির নাম্বার (Pole Number)
                 </label>
                 <input
                   type="text"
@@ -247,7 +260,7 @@ const ReportProblemPage = () => {
                   value={formData.pollNumber}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder="যদি জানা থাকে"
+                  placeholder="যদি জানা থাকে (If known)"
                 />
               </div>
             )}
@@ -257,7 +270,7 @@ const ReportProblemPage = () => {
               <>
                 <div>
                   <label className="block text-gray-700 font-semibold mb-2">
-                    পূজার তারিখ
+                    পূজার তারিখ (Festival Date)
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -275,7 +288,7 @@ const ReportProblemPage = () => {
 
                 <div>
                   <label className="block text-gray-700 font-semibold mb-2">
-                    প্রয়োজনীয়তা
+                    প্রয়োজনীয়তা (Requirements)
                   </label>
                   <textarea
                     name="requirements"
@@ -283,7 +296,7 @@ const ReportProblemPage = () => {
                     onChange={handleChange}
                     className="input-field"
                     rows="3"
-                    placeholder="কি কি প্রয়োজন তা লিখুন"
+                    placeholder="কি কি প্রয়োজন তা লিখুন (Write what is needed)"
                   ></textarea>
                 </div>
               </>
@@ -292,7 +305,7 @@ const ReportProblemPage = () => {
             {/* Description */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                বিবরণ *
+                বিবরণ (Description) *
               </label>
               <textarea
                 name="description"
@@ -300,7 +313,7 @@ const ReportProblemPage = () => {
                 onChange={handleChange}
                 className="input-field"
                 rows="4"
-                placeholder="সমস্যার বিস্তারিত বর্ণনা দিন"
+                placeholder="সমস্যার বিস্তারিত বর্ণনা দিন (Provide detailed description of the problem)"
                 required
               ></textarea>
             </div>
@@ -308,7 +321,7 @@ const ReportProblemPage = () => {
             {/* Location */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                অবস্থান *
+                অবস্থান (Location) *
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -321,7 +334,7 @@ const ReportProblemPage = () => {
                     value={formData.location.address}
                     onChange={handleChange}
                     className="input-field pl-10"
-                    placeholder="ঠিকানা লিখুন"
+                    placeholder="ঠিকানা লিখুন (Enter address)"
                     required
                   />
                 </div>
@@ -330,12 +343,12 @@ const ReportProblemPage = () => {
                   onClick={getLocation}
                   className="btn-secondary whitespace-nowrap"
                 >
-                  GPS ব্যবহার করুন
+                  GPS ব্যবহার করুন (Use GPS)
                 </button>
               </div>
               {formData.location.coordinates.latitude && (
                 <p className="text-sm text-green-600 mt-2">
-                  ✓ GPS লোকেশন সংগ্রহ করা হয়েছে
+                  ✓ GPS লোকেশন সংগ্রহ করা হয়েছে (GPS location collected)
                 </p>
               )}
             </div>
@@ -343,13 +356,13 @@ const ReportProblemPage = () => {
             {/* Image Upload */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                ছবি আপলোড করুন (ঐচ্ছিক, সর্বোচ্চ ৫টি)
+                ছবি আপলোড করুন (Upload Images) (ঐচ্ছিক, সর্বোচ্চ ৫টি - Optional, max 5)
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
                 <FaCamera className="text-4xl text-gray-400 mx-auto mb-2" />
                 <label className="cursor-pointer">
                   <span className="text-blue-600 hover:text-blue-700 font-semibold">
-                    ছবি নির্বাচন করুন
+                    ছবি নির্বাচন করুন (Select Images)
                   </span>
                   <input
                     type="file"
@@ -397,7 +410,7 @@ const ReportProblemPage = () => {
                   <span>জমা দেওয়া হচ্ছে...</span>
                 </div>
               ) : (
-                'জমা দিন'
+                'জমা দিন (Submit)'
               )}
             </button>
           </form>

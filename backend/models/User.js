@@ -17,7 +17,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'মোবাইল নাম্বার প্রয়োজন'],
     unique: true,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(phone) {
+        // Bangladeshi mobile number validation
+        // Should start with 01 and be 11 digits total
+        return /^01[3-9]\d{8}$/.test(phone);
+      },
+      message: 'সঠিক বাংলাদেশী মোবাইল নাম্বার দিন (01XXXXXXXXX)'
+    }
   },
   password: {
     type: String,

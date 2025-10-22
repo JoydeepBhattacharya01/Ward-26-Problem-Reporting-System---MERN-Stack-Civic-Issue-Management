@@ -12,7 +12,7 @@ const createEmailTransporter = () => {
   // Primary: Gmail with App Password
   if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     try {
-      return nodemailer.createTransport({
+      return nodemailer.createTransporter({
         host: process.env.EMAIL_HOST,
         port: parseInt(process.env.EMAIL_PORT) || 587,
         secure: false, // true for 465, false for other ports
@@ -32,7 +32,7 @@ const createEmailTransporter = () => {
   // Fallback: SendGrid
   if (process.env.SENDGRID_API_KEY) {
     try {
-      return nodemailer.createTransport({
+      return nodemailer.createTransporter({
         host: 'smtp.sendgrid.net',
         port: 587,
         secure: false,
@@ -49,7 +49,7 @@ const createEmailTransporter = () => {
   // Fallback: Mailgun
   if (process.env.MAILGUN_SMTP_LOGIN && process.env.MAILGUN_SMTP_PASSWORD) {
     try {
-      return nodemailer.createTransport({
+      return nodemailer.createTransporter({
         host: 'smtp.mailgun.org',
         port: 587,
         secure: false,

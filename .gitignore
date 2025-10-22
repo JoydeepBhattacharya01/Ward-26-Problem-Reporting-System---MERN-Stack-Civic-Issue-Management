@@ -100,3 +100,7 @@ backend/uploads/*
 # Temporary files
 *.tmp
 *.temp
+
+# Notification logs (contain sensitive data)
+backend/notification-logs.json
+backend/notification-consistency-report.json

@@ -44,7 +44,7 @@ const LoginPage = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-semibold"
         >
-          <FaArrowLeft /> ফিরে যান
+          <FaArrowLeft /> ফিরে যান (Go Back)
         </button>
 
         {/* Card */}
@@ -57,10 +57,10 @@ const LoginPage = () => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              ব্যবহারকারী লগইন
+              লগইন করুন (Login)
             </h2>
             <p className="text-gray-600">
-              আপনার অ্যাকাউন্টে প্রবেশ করুন
+              আপনার অ্যাকাউন্টে প্রবেশ করুন (Enter your account)
             </p>
           </div>
 
@@ -69,7 +69,7 @@ const LoginPage = () => {
             {/* Phone */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                মোবাইল নাম্বার
+                মোবাইল নাম্বার (Mobile Number) *
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,7 +81,7 @@ const LoginPage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   className="input-field pl-10"
-                  placeholder="০১XXXXXXXXX"
+                  placeholder="01XXXXXXXXX"
                   required
                 />
               </div>
@@ -90,7 +90,7 @@ const LoginPage = () => {
             {/* Password */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                পাসওয়ার্ড
+                পাসওয়ার্ড (Password) *
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -120,7 +120,7 @@ const LoginPage = () => {
                   <span>লগইন হচ্ছে...</span>
                 </div>
               ) : (
-                'লগইন করুন'
+                'লগইন করুন (Login)'
               )}
             </button>
           </form>
@@ -128,9 +128,9 @@ const LoginPage = () => {
           {/* Register Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              নতুন ব্যবহারকারী?{' '}
+              নতুন ব্যবহারকারী? (New user?) {' '}
               <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
-                রেজিস্টার করুন
+                রেজিস্টার করুন (Register)
               </Link>
             </p>
           </div>
