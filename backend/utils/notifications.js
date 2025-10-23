@@ -399,6 +399,68 @@ exports.notifyAdmins = async (problemData) => {
   return results;
 };
 
+// Send SMS notification to user when complaint is solved
+exports.sendSolvedNotification = async (problemData) => {
+  try {
+    const client = createTwilioClient();
+    
+    if (!client) {
+      console.log('Twilio not configured, skipping solved notification');
+      return false;
+    }
+
+    if (!process.env.TWILIO_PHONE_NUMBER) {
+      console.log('Twilio phone number not configured');
+      return false;
+    }
+
+    // Format user phone number to E.164 if needed
+    let userPhone = problemData.userPhone;
+    if (!userPhone.startsWith('+')) {
+      // Indian numbers: convert 9XXXXXXXXX or 8XXXXXXXXX to +919XXXXXXXXX or +918XXXXXXXXX
+      if (userPhone.length === 10 && (userPhone.startsWith('9') || userPhone.startsWith('8') || userPhone.startsWith('7') || userPhone.startsWith('6'))) {
+        userPhone = '+91' + userPhone;
+      } else {
+        userPhone = '+91' + userPhone;
+      }
+    }
+
+    // Validate phone number format
+    if (!isValidE164(userPhone)) {
+      console.warn(`⚠️  Invalid user phone number format: ${userPhone}`);
+      return false;
+    }
+
+    const categoryBengali = categoryNames[problemData.category] || problemData.category;
+    
+    // Create solved notification message
+    const solvedMessage = `✅ Your complaint (ID: ${problemData.complaintId}) about ${categoryBengali} has been marked as solved. Thank you for reporting to Ward 26 - Amar Elaka Amar Daitto.`;
+
+    console.log(`📱 Sending SMS notification to user: ${userPhone}`);
+
+    // Send regular SMS instead of WhatsApp
+    try {
+      const message = await client.messages.create({
+        body: solvedMessage,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: userPhone
+      });
+
+      console.log(`✅ SMS notification sent successfully to ${userPhone}, SID: ${message.sid}`);
+      logNotification('solved_notification', true, { phone: userPhone, sid: message.sid });
+      return true;
+    } catch (twilioError) {
+      console.error(`❌ Failed to send SMS notification to ${userPhone}:`, twilioError.message);
+      logNotification('solved_notification', false, { phone: userPhone, error: twilioError.message });
+      return false;
+    }
+  } catch (error) {
+    console.error('Solved notification error:', error);
+    logNotification('solved_notification_system', false, { error: error.message });
+    return false;
+  }
+};
+
 // Export utility functions
 exports.retryWithBackoff = retryWithBackoff;
 exports.logNotification = logNotification;
