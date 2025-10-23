@@ -185,19 +185,23 @@ router.get('/', protect, admin, async (req, res) => {
       query.category = req.query.category;
     }
 
-    // Pagination
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    // Pagination with limits
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    // Get total count for pagination info
-    const total = await Problem.countDocuments(query);
+    // Use aggregation for better performance
+    const [problems, totalResult] = await Promise.all([
+      Problem.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('-__v')
+        .lean(), // Use lean() for better performance
+      Problem.countDocuments(query)
+    ]);
 
-    const problems = await Problem.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate('userId', 'name phone email');
+    const total = totalResult;
 
     res.json({
       count: problems.length,

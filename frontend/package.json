@@ -13,8 +13,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "build:analyze": "npm run build && npx serve -s build"
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:analyze": "npm run build && npx serve -s build",
+    "build:prod": "GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false react-scripts build"
   },
   "eslintConfig": {
     "extends": [

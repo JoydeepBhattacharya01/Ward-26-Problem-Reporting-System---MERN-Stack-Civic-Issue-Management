@@ -85,14 +85,16 @@ const problemSchema = new mongoose.Schema({
 });
 
 // Create indexes for better query performance
-problemSchema.index({ complaintId: 1 });
-problemSchema.index({ userId: 1 });
+problemSchema.index({ complaintId: 1 }, { unique: true });
+problemSchema.index({ userPhone: 1 }); // For user reports lookup
 problemSchema.index({ status: 1 });
 problemSchema.index({ category: 1 });
 problemSchema.index({ createdAt: -1 });
-problemSchema.index({ userId: 1, status: 1 });
+problemSchema.index({ status: 1, createdAt: -1 }); // For admin dashboard
 problemSchema.index({ category: 1, status: 1 });
+problemSchema.index({ userPhone: 1, createdAt: -1 }); // For user reports
 problemSchema.index({ 'location.coordinates': '2dsphere' }); // For geospatial queries
+problemSchema.index({ resolvedAt: -1 }, { sparse: true }); // For resolved problems
 
 // Auto-generate complaintId before saving
 problemSchema.pre('save', async function(next) {

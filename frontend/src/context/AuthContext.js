@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config/api';
 
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (phone, password, isAdmin = false) => {
+  const login = useCallback(async (phone, password, isAdmin = false) => {
     try {
       const endpoint = isAdmin ? API_ENDPOINTS.ADMIN_LOGIN : API_ENDPOINTS.LOGIN;
       const loginData = isAdmin ? { email: phone, password } : { phone, password };
@@ -50,9 +50,9 @@ export const AuthProvider = ({ children }) => {
         message: error.response?.data?.message || 'লগইন ব্যর্থ হয়েছে'
       };
     }
-  };
+  }, []);
 
-  const register = async (name, phone, email, password) => {
+  const register = useCallback(async (name, phone, email, password) => {
     try {
       const response = await axios.post(API_ENDPOINTS.REGISTER, {
         name,
@@ -75,16 +75,16 @@ export const AuthProvider = ({ children }) => {
         message: error.response?.data?.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে'
       };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     login,
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.isAdmin || false
-  };
+  }), [user, loading, login, register, logout]);
 
   return (
     <AuthContext.Provider value={value}>
