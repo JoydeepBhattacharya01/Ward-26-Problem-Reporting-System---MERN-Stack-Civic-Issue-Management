@@ -343,7 +343,7 @@ const AdminDashboard = () => {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <p><strong>Complaint ID:</strong> {searchResult.complaintId}</p>
-                <p><strong>Category:</strong> {categoryNames[searchResult.category]}</p>
+                <p><strong>Category:</strong> {categoryNames[searchResult.category] || searchResult.category}</p>
                 <p><strong>Subcategory:</strong> {searchResult.subcategory}</p>
                 <p><strong>Status:</strong> 
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${statusColors[searchResult.status]}`}>
@@ -422,7 +422,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-gray-800">
-                            {categoryNames[problem.category]}
+                            {categoryNames[problem.category] || problem.category}
                           </p>
                           <p className="text-sm text-gray-600">{problem.subcategory}</p>
                         </div>
@@ -481,7 +481,7 @@ const AdminDashboard = () => {
               
               {/* Problem Details */}
               <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">
-                <p><span className="font-semibold">ক্যাটাগরি:</span> {categoryNames[selectedProblem.category]}</p>
+                <p><span className="font-semibold">ক্যাটাগরি:</span> {categoryNames[selectedProblem.category] || selectedProblem.category}</p>
                 <p><span className="font-semibold">সাব-ক্যাটাগরি:</span> {selectedProblem.subcategory}</p>
                 <p><span className="font-semibold">বিবরণ:</span> {selectedProblem.description}</p>
                 <p><span className="font-semibold">অবস্থান (Location):</span> {selectedProblem.location.address}</p>
