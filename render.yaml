@@ -15,9 +15,9 @@ services:
       - key: FRONTEND_URL
         value: https://ward-26-problem-reporting-system-me.vercel.app
       - key: TWILIO_ACCOUNT_SID
-        value: ACa1f3bd8d39bc0793ebc9b78f21a7f5d9
+        value: your_twilio_account_sid_here
       - key: TWILIO_AUTH_TOKEN
-        value: 99986986856d6fe076fbb917d0df549f
+        value: your_twilio_auth_token_here
       - key: TWILIO_PHONE_NUMBER
         value: +1234567890
       - key: TWILIO_WHATSAPP_NUMBER
