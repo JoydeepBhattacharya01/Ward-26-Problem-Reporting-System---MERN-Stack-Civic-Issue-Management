@@ -1,12 +1,73 @@
+const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 const fs = require('fs');
 const path = require('path');
 
-// WhatsApp-only notification system for Ward 26
+// Enhanced notification system with multiple email providers and better error handling
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second base delay
 
-// Twilio client setup
+// Multiple email transporter configurations
+const createEmailTransporter = () => {
+  // Primary: Gmail with App Password
+  if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    try {
+      return nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT) || 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        },
+        tls: {
+          rejectUnauthorized: false // Allow self-signed certificates
+        }
+      });
+    } catch (error) {
+      console.error('Primary email transporter failed:', error.message);
+    }
+  }
+
+  // Fallback: SendGrid
+  if (process.env.SENDGRID_API_KEY) {
+    try {
+      return nodemailer.createTransport({
+        host: 'smtp.sendgrid.net',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'apikey',
+          pass: process.env.SENDGRID_API_KEY
+        }
+      });
+    } catch (error) {
+      console.error('SendGrid transporter failed:', error.message);
+    }
+  }
+
+  // Fallback: Mailgun
+  if (process.env.MAILGUN_SMTP_LOGIN && process.env.MAILGUN_SMTP_PASSWORD) {
+    try {
+      return nodemailer.createTransport({
+        host: 'smtp.mailgun.org',
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.MAILGUN_SMTP_LOGIN,
+          pass: process.env.MAILGUN_SMTP_PASSWORD
+        }
+      });
+    } catch (error) {
+      console.error('Mailgun transporter failed:', error.message);
+    }
+  }
+
+  console.error('No email transporter could be created. Check your email configuration.');
+  return null;
+};
+
+// Twilio client setup with better error handling
 const createTwilioClient = () => {
   if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
     try {
@@ -17,7 +78,7 @@ const createTwilioClient = () => {
       return null;
     }
   }
-  console.log('Twilio not configured - WhatsApp/SMS notifications disabled');
+  console.log('Twilio not configured - SMS/WhatsApp notifications disabled');
   return null;
 };
 
@@ -28,17 +89,7 @@ const categoryNames = {
   road: 'রাস্তাঘাট সমস্যা',
   festival: 'উৎসব',
   medical_emergency: 'চিকিৎসা জরুরি অবস্থা',
-  other: 'অন্যান্য',
-  // New comprehensive categories
-  infrastructure_public_works: 'অবকাঠামো ও গণপূর্ত',
-  waste_management_sanitation: 'বর্জ্য ব্যবস্থাপনা ও স্যানিটেশন',
-  parks_public_spaces: 'পার্ক ও পাবলিক স্পেস',
-  water_sanitation_services: 'পানি ও স্যানিটেশন সেবা',
-  electricity_power: 'বিদ্যুৎ ও পাওয়ার',
-  public_transport_traffic: 'পাবলিক ট্রান্সপোর্ট ও ট্রাফিক',
-  housing_community_facilities: 'হাউজিং ও কমিউনিটি সুবিধা',
-  safety_law_enforcement: 'নিরাপত্তা ও আইন প্রয়োগ',
-  education_social_services: 'শিক্ষা ও সামাজিক সেবা'
+  other: 'অন্যান্য'
 };
 
 // Validate phone number in E.164 format
@@ -69,7 +120,7 @@ async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
   return false;
 }
 
-// Enhanced logging
+// Enhanced logging with better error categorization
 function logNotification(type, success, details = {}) {
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -100,6 +151,22 @@ function logNotification(type, success, details = {}) {
   }
 }
 
+// Test email configuration
+async function testEmailConfiguration() {
+  try {
+    const transporter = createEmailTransporter();
+    if (!transporter) {
+      return { success: false, error: 'No email transporter available' };
+    }
+
+    // Verify connection
+    await transporter.verify();
+    return { success: true, message: 'Email configuration is valid' };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 // Test Twilio configuration
 async function testTwilioConfiguration() {
   try {
@@ -121,7 +188,103 @@ async function testTwilioConfiguration() {
   }
 }
 
-// SMS fallback for individual admin
+// Enhanced email notification with multiple provider fallback
+exports.sendEmailNotificationEnhanced = async (problemData) => {
+  const sendEmail = async () => {
+    try {
+      const transporter = createEmailTransporter();
+      
+      if (!transporter) {
+        throw new Error('No email transporter available - check email configuration');
+      }
+
+      const adminEmails = [
+        process.env.ADMIN_EMAIL_1,
+        process.env.ADMIN_EMAIL_2,
+        process.env.ADMIN_EMAIL_3
+      ].filter(email => email && email.includes('@'));
+
+      if (adminEmails.length === 0) {
+        throw new Error('No valid admin email addresses configured');
+      }
+
+      const categoryBengali = categoryNames[problemData.category] || problemData.category;
+      
+      // Create GPS location HTML if available
+      let gpsLocationHtml = '';
+      if (problemData.location.coordinates && 
+          problemData.location.coordinates.latitude && 
+          problemData.location.coordinates.longitude) {
+        const lat = problemData.location.coordinates.latitude;
+        const lng = problemData.location.coordinates.longitude;
+        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        gpsLocationHtml = `<p><strong>GPS স্থানাঙ্ক:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+              <p><strong>Google Maps:</strong> <a href="${googleMapsUrl}" target="_blank" style="color: #1e40af;">মানচিত্রে দেখুন</a></p>`;
+      }
+      
+      const emailContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+          <div style="background-color: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
+              ২৬ নম্বর ওয়ার্ড - নতুন সমস্যা রিপোর্ট
+            </h2>
+            
+            <div style="margin: 20px 0;">
+              <p><strong>অভিযোগ নম্বর:</strong> ${problemData.complaintId}</p>
+              <p><strong>ক্যাটাগরি:</strong> ${categoryBengali}</p>
+              <p><strong>সাব-ক্যাটাগরি:</strong> ${problemData.subcategory}</p>
+              <p><strong>বিবরণ:</strong> ${problemData.description}</p>
+              <p><strong>অবস্থান:</strong> ${problemData.location.address}</p>
+              ${gpsLocationHtml}
+              ${problemData.pollNumber ? `<p><strong>খুঁটির নাম্বার:</strong> ${problemData.pollNumber}</p>` : ''}
+              ${problemData.festivalDate ? `<p><strong>তারিখ:</strong> ${new Date(problemData.festivalDate).toLocaleDateString('bn-BD')}</p>` : ''}
+            </div>
+            
+            <div style="background-color: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #1e40af; margin-top: 0;">রিপোর্টকারীর তথ্য</h3>
+              <p><strong>নাম:</strong> ${problemData.userName}</p>
+              <p><strong>মোবাইল:</strong> ${problemData.userPhone}</p>
+              ${problemData.userEmail ? `<p><strong>ইমেইল:</strong> ${problemData.userEmail}</p>` : ''}
+            </div>
+            
+            <p style="color: #666; font-size: 12px; margin-top: 20px;">
+              <strong>সময়:</strong> ${new Date(problemData.createdAt).toLocaleString('bn-BD')}
+            </p>
+          </div>
+        </div>
+      `;
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER || 'noreply@ward26.gov.bd',
+        to: adminEmails.join(','),
+        subject: `নতুন সমস্যা রিপোর্ট - ${categoryBengali} [${problemData.complaintId}]`,
+        html: emailContent
+      };
+
+      const result = await transporter.sendMail(mailOptions);
+      console.log('✅ Email notification sent successfully:', result.messageId);
+      logNotification('email', true, { 
+        recipients: adminEmails.length, 
+        messageId: result.messageId,
+        provider: 'configured'
+      });
+      return true;
+    } catch (error) {
+      console.error('Email notification error:', error.message);
+      logNotification('email', false, { error: error.message });
+      throw error;
+    }
+  };
+
+  try {
+    return await retryWithBackoff(sendEmail);
+  } catch (error) {
+    console.error('Email notification failed after retries:', error.message);
+    return false;
+  }
+};
+
+// SMS fallback for individual admin with better error handling
 async function sendSMSToAdmin(phone, problemData) {
   try {
     const client = createTwilioClient();
@@ -164,8 +327,8 @@ Time: ${new Date(problemData.createdAt).toLocaleString()}`;
   }
 }
 
-// WhatsApp notification with SMS fallback
-exports.sendWhatsAppNotification = async (problemData) => {
+// Enhanced WhatsApp notification with better rate limit handling
+exports.sendWhatsAppNotificationEnhanced = async (problemData) => {
   try {
     const client = createTwilioClient();
     
@@ -186,7 +349,7 @@ exports.sendWhatsAppNotification = async (problemData) => {
       return false;
     }
 
-    console.log(`📱 Sending WhatsApp to ${adminPhones.length} admin(s)...`);
+    console.log(`📱 Sending enhanced WhatsApp to ${adminPhones.length} admin(s)...`);
 
     const categoryBengali = categoryNames[problemData.category] || problemData.category;
     
@@ -261,11 +424,11 @@ exports.sendWhatsAppNotification = async (problemData) => {
     const whatsappCount = results.filter(r => r && r.success && r.method === 'WhatsApp').length;
     const smsCount = results.filter(r => r && r.success && r.method === 'SMS').length;
     
-    console.log(`📊 Notifications: ${successCount} sent (${whatsappCount} WhatsApp, ${smsCount} SMS), ${results.length - successCount} failed`);
+    console.log(`📊 Enhanced notifications: ${successCount} sent (${whatsappCount} WhatsApp, ${smsCount} SMS), ${results.length - successCount} failed`);
     
     return successCount > 0;
   } catch (error) {
-    console.error('WhatsApp notification error:', error);
+    console.error('Enhanced WhatsApp notification error:', error);
     logNotification('whatsapp_system', false, { error: error.message });
     // Fallback to SMS for all admins
     console.log('🔄 System fallback: trying SMS for all admins...');
@@ -273,7 +436,7 @@ exports.sendWhatsAppNotification = async (problemData) => {
   }
 };
 
-// SMS notification
+// Enhanced SMS notification
 exports.sendAdminSMS = async (problemData) => {
   try {
     const client = createTwilioClient();
@@ -343,11 +506,12 @@ Time: ${new Date(problemData.createdAt).toLocaleString()}`;
   }
 };
 
-// Main notification function - WhatsApp only
-exports.notifyAdmins = async (problemData) => {
-  console.log('🔔 Sending WhatsApp notifications to admins...');
+// Enhanced notifyAdmins with comprehensive diagnostics
+exports.notifyAdminsEnhanced = async (problemData) => {
+  console.log('🔔 Sending enhanced notifications to admins...');
   
   const results = {
+    email: false,
     whatsapp: false,
     sms: false,
     timestamp: new Date().toISOString(),
@@ -357,18 +521,29 @@ exports.notifyAdmins = async (problemData) => {
   };
   
   // Run diagnostics first
-  console.log('🔍 Running Twilio diagnostics...');
+  console.log('🔍 Running notification diagnostics...');
+  results.diagnostics.email = await testEmailConfiguration();
   results.diagnostics.twilio = await testTwilioConfiguration();
   
-  // Try WhatsApp/SMS with automatic fallback
+  // Try email with retry
   try {
-    console.log('📱 Attempting WhatsApp/SMS notification...');
-    const whatsappResult = await exports.sendWhatsAppNotification(problemData);
+    console.log('📧 Attempting enhanced email notification...');
+    results.email = await exports.sendEmailNotificationEnhanced(problemData);
+    results.attempts.push({ method: 'email', success: results.email });
+  } catch (emailError) {
+    console.error('📧 Email notification failed:', emailError.message);
+    results.attempts.push({ method: 'email', success: false, error: emailError.message });
+  }
+  
+  // Try enhanced WhatsApp/SMS with automatic fallback
+  try {
+    console.log('📱 Attempting enhanced WhatsApp/SMS notification...');
+    const whatsappResult = await exports.sendWhatsAppNotificationEnhanced(problemData);
     results.whatsapp = whatsappResult;
-    results.attempts.push({ method: 'whatsapp_with_sms_fallback', success: whatsappResult });
+    results.attempts.push({ method: 'whatsapp_enhanced', success: whatsappResult });
   } catch (whatsappError) {
     console.error('📱 WhatsApp/SMS notification failed:', whatsappError.message);
-    results.attempts.push({ method: 'whatsapp_with_sms_fallback', success: false, error: whatsappError.message });
+    results.attempts.push({ method: 'whatsapp_enhanced', success: false, error: whatsappError.message });
     
     // Final fallback: try pure SMS
     try {
@@ -386,11 +561,11 @@ exports.notifyAdmins = async (problemData) => {
   const totalAttempts = results.attempts.length;
   const successRate = Math.round((successCount / totalAttempts) * 100);
   
-  console.log(`📊 WhatsApp notification summary: ${successCount}/${totalAttempts} methods successful (${successRate}%)`);
+  console.log(`📊 Enhanced notification summary: ${successCount}/${totalAttempts} methods successful (${successRate}%)`);
   console.log('🔍 Diagnostics:', results.diagnostics);
   
   // Log comprehensive results
-  logNotification('notify_admins_whatsapp_only', successCount > 0, {
+  logNotification('notify_admins_enhanced', successCount > 0, {
     complaintId: problemData.complaintId,
     results: results,
     successRate: successRate
@@ -399,7 +574,13 @@ exports.notifyAdmins = async (problemData) => {
   return results;
 };
 
+// Backward compatibility - keep original function names
+exports.sendEmailNotification = exports.sendEmailNotificationEnhanced;
+exports.sendWhatsAppNotification = exports.sendWhatsAppNotificationEnhanced;
+exports.notifyAdmins = exports.notifyAdminsEnhanced;
+
 // Export utility functions
 exports.retryWithBackoff = retryWithBackoff;
 exports.logNotification = logNotification;
+exports.testEmailConfiguration = testEmailConfiguration;
 exports.testTwilioConfiguration = testTwilioConfiguration;

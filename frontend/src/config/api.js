@@ -1,4 +1,6 @@
 // API Configuration for Ward 26 Problem Reporting System
+import axios from 'axios';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 console.log('API_BASE_URL:', API_BASE_URL); // Debug log
@@ -21,7 +23,6 @@ export const API_ENDPOINTS = {
 };
 
 // Configure axios defaults
-import axios from 'axios';
 
 axios.defaults.timeout = 30000; // 30 second timeout
 axios.defaults.headers.common['Content-Type'] = 'application/json';

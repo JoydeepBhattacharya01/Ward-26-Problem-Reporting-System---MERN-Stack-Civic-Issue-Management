@@ -13,13 +13,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://ward26-problem-reporting.vercel.app
-      - key: ADMIN_EMAIL_1
-        value: joydeepbhattacharya668@gmail.com
-      - key: ADMIN_EMAIL_2
-        value: subhosreebanerjee.dms.154@gmail.com
-      - key: ADMIN_EMAIL_3
-        value: admin3@ward26.gov.in
+        value: https://ward-26-problem-reporting-system-me.vercel.app
       - key: TWILIO_ACCOUNT_SID
         value: your_twilio_account_sid_here
       - key: TWILIO_AUTH_TOKEN
