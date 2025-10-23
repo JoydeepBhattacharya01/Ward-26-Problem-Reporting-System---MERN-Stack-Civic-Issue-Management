@@ -80,37 +80,37 @@ app.use((req, res) => {
   res.status(404).json({ message: 'রাউট পাওয়া যায়নি' });
 });
 
-// MongoDB connection with optimized settings
+// MongoDB connection with production-ready settings
 const connectDB = async () => {
   try {
+    // Modern Mongoose connection (v6+) - removed deprecated options
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       maxPoolSize: process.env.NODE_ENV === 'production' ? 20 : 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      bufferMaxEntries: 0,
-      bufferCommands: false,
-      maxIdleTimeMS: 30000,
-      family: 4 // Use IPv4, skip trying IPv6
     });
     
     // Set mongoose options for production
     mongoose.set('strictQuery', true);
     
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     
-    // Handle connection events
+    // Handle connection events for monitoring
     mongoose.connection.on('error', (err) => {
-      console.error('MongoDB connection error:', err);
+      console.error('❌ MongoDB connection error:', err);
     });
     
     mongoose.connection.on('disconnected', () => {
-      console.log('MongoDB disconnected');
+      console.warn('⚠️  MongoDB disconnected');
+    });
+    
+    mongoose.connection.on('reconnected', () => {
+      console.log('✅ MongoDB reconnected');
     });
     
   } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    console.error('Full error:', error);
     process.exit(1);
   }
 };

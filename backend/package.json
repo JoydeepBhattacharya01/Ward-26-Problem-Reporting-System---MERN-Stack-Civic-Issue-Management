@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "echo 'No build step required for Node.js'"
+    "build": "echo 'No build step required for Node.js'",
+    "validate": "node validate-startup.js",
+    "prestart": "node validate-startup.js",
+    "safe-start": "npm run validate && npm start"
   },
   "engines": {
     "node": ">=18.0.0",
