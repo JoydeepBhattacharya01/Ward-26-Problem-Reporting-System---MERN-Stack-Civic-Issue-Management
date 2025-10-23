@@ -11,7 +11,7 @@ services:
       - key: MONGODB_URI
         value: mongodb+srv://wardadmin:Ward26%402025@cluster0.irxsdob.mongodb.net/wardno26?retryWrites=true&w=majority&appName=Cluster0
       - key: JWT_SECRET
-        generateValue: true
+        value: b7f3e8e2b10a44c9835d91df7c2c6f4f8e3c2e6a8d1b6a3f9c8b0d4e1a9f7e2b
       - key: FRONTEND_URL
         value: https://ward-26-problem-reporting-system-me.vercel.app
       - key: TWILIO_ACCOUNT_SID
