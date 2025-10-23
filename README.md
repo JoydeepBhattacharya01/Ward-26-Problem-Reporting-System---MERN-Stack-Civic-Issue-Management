@@ -1,22 +1,29 @@
-# ২৬ নম্বর ওয়ার্ড – আমাদের ওয়ার্ড
+# Ward No. 26 Problem Reporting System
 
 **"আমার এলাকা, আমার দায়িত্ব"**
 
-A comprehensive MERN stack web application for Ward 26 citizens to report civic issues directly to the ward administration.
+An initiative by **Hon'ble Councillor Susobhan Mondal (Michael), Ward No. 26, Krishnapur**
+
+A comprehensive MERN stack web application for Ward 26 citizens to report civic issues directly to the ward administration without requiring user registration.
 
 ## 🌟 Features
 
 ### For Citizens
-- **User Registration & Login** - Simple authentication system
-- **Problem Categories**:
-  - ⚡ বিদ্যুৎ সমস্যা (Electricity Problems)
-  - 💧 নর্দমা সমস্যা (Drainage Problems)
-  - 🛣️ রাস্তাঘাট সমস্যা (Road Problems)
-  - 🎉 উৎসব (Festival)
-  - 📝 অন্যান্য (Other)
+- **No Registration Required** - Anonymous problem reporting
+- **Comprehensive Problem Categories**:
+  - 🏗️ অবকাঠামো ও জনকাজ (Infrastructure & Public Works)
+  - 🗑️ বর্জ্য ব্যবস্থাপনা ও স্যানিটেশন (Waste Management & Sanitation)
+  - 🌳 পার্ক ও পাবলিক স্পেস (Parks & Public Spaces)
+  - 💧 পানি ও স্যানিটেশন সেবা (Water & Sanitation Services)
+  - ⚡ বিদ্যুৎ ও পাওয়ার (Electricity & Power)
+  - 🚗 পাবলিক ট্রান্সপোর্ট ও ট্রাফিক (Public Transport & Traffic)
+  - 🏠 আবাসন ও কমিউনিটি সুবিধা (Housing & Community Facilities)
+  - 🛡️ নিরাপত্তা ও আইন প্রয়োগ (Safety & Law Enforcement)
+  - 🎓 শিক্ষা ও সামাজিক সেবা (Education & Social Services)
+  - 📝 অন্যান্য (Others)
 - **Image Upload** - Attach up to 5 images per report
-- **GPS Location** - Automatic location detection
-- **Track Reports** - View status of submitted complaints
+- **Contact Details** - Provide name, phone, and optional email
+- **Track Reports** - View status using phone number lookup
 
 ### For Admins
 - **Secure Admin Dashboard** - Separate login for administrators
@@ -205,22 +212,61 @@ ward26-problem-reporting/
 └── README.md
 ```
 
-## 🌐 Deployment
+## 🌐 Production Deployment
 
-### Backend (Heroku/Railway/Render)
-1. Set environment variables
-2. Deploy backend
-3. Update FRONTEND_URL
+### Quick Deployment with Script
+```bash
+# Make deployment script executable and run
+chmod +x deploy.sh
+./deploy.sh
+```
 
-### Frontend (Vercel/Netlify)
-1. Build: `npm run build`
-2. Deploy build folder
-3. Set API proxy
+### Manual Deployment Steps
 
-### Database (MongoDB Atlas)
-1. Create cluster
-2. Get connection string
-3. Update MONGODB_URI
+#### 1. Environment Setup
+```bash
+# Copy environment template
+cp backend/.env.example backend/.env
+
+# Update .env with production values:
+# - Set NODE_ENV=production
+# - Configure MongoDB Atlas URI
+# - Set production domain for FRONTEND_URL
+# - Add email and SMS credentials
+```
+
+#### 2. Backend Deployment (Railway/Render/Heroku)
+```bash
+cd backend
+npm install --production
+npm start
+```
+
+#### 3. Frontend Deployment (Vercel/Netlify)
+```bash
+cd frontend
+npm install
+npm run build
+# Deploy the 'build' folder
+```
+
+#### 4. Database (MongoDB Atlas)
+1. Create MongoDB Atlas cluster
+2. Whitelist deployment server IP
+3. Update MONGODB_URI in .env
+
+### Environment Variables for Production
+```env
+NODE_ENV=production
+PORT=8000
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ward26
+JWT_SECRET=your_secure_jwt_secret
+FRONTEND_URL=https://your-domain.com
+EMAIL_USER=your-production-email@gmail.com
+EMAIL_PASSWORD=your_app_password
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+```
 
 ## 🐛 Troubleshooting
 

@@ -13,11 +13,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:3001": "PORT=3001 react-scripts start",
-    "start:3002": "PORT=3002 react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build:analyze": "npm run build && npx serve -s build"
   },
   "eslintConfig": {
     "extends": [
@@ -40,6 +37,5 @@
     "tailwindcss": "^3.3.3",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31"
-  },
-  "proxy": "http://localhost:8000"
+  }
 }

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { FaArrowLeft, FaMapMarkerAlt, FaCamera, FaCalendar } from 'react-icons/fa';
+import { FaArrowLeft, FaMapMarkerAlt, FaCamera, FaUser, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { API_ENDPOINTS } from '../config/api';
 
 const ReportProblemPage = () => {
   const { category } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    userName: '',
+    userPhone: '',
+    userEmail: '',
     subcategory: '',
     description: '',
     location: {
@@ -24,49 +26,93 @@ const ReportProblemPage = () => {
   const [images, setImages] = useState([]);
 
   const categoryNames = {
-    electricity: 'বিদ্যুৎ সমস্যা',
-    drainage: 'নর্দমা সমস্যা',
-    road: 'রাস্তাঘাট সমস্যা',
-    festival: 'উৎসব',
-    medical_emergency: 'চিকিৎসা জরুরি অবস্থা',
-    other: 'অন্যান্য'
+    infrastructure_public_works: 'অবকাঠামো ও জনকাজ (Infrastructure & Public Works)',
+    waste_management_sanitation: 'বর্জ্য ব্যবস্থাপনা ও স্যানিটেশন (Waste Management & Sanitation)',
+    parks_public_spaces: 'পার্ক ও পাবলিক স্পেস (Parks & Public Spaces)',
+    water_sanitation_services: 'পানি ও স্যানিটেশন সেবা (Water & Sanitation Services)',
+    electricity_power: 'বিদ্যুৎ ও পাওয়ার (Electricity & Power)',
+    public_transport_traffic: 'পাবলিক ট্রান্সপোর্ট ও ট্রাফিক (Public Transport & Traffic)',
+    housing_community_facilities: 'আবাসন ও কমিউনিটি সুবিধা (Housing & Community Facilities)',
+    safety_law_enforcement: 'নিরাপত্তা ও আইন প্রয়োগ (Safety & Law Enforcement)',
+    education_social_services: 'শিক্ষা ও সামাজিক সেবা (Education & Social Services)',
+    others: 'অন্যান্য (Others)'
   };
 
   const subcategories = {
-    electricity: [
-      'আলো জ্বলছে না',
-      'তারের সমস্যা',
-      'ট্রান্সফরমার সমস্যা',
-      'অন্যান্য'
+    infrastructure_public_works: [
+      'রাস্তার ক্ষতি (গর্ত, ফাটল, বন্যা) - Road damage (potholes, cracks, flooding)',
+      'স্ট্রিট লাইটিং (ভাঙা, অনুপস্থিত, বা ঝিকমিক করা আলো) - Street lighting issues',
+      'ফুটপাথ বা পেভমেন্ট মেরামত - Sidewalk or pavement repairs',
+      'ঝড়ের পানি নিষ্কাশন বা ব্লক ড্রেন - Stormwater drainage or blocked drains',
+      'সেতু ও কালভার্ট রক্ষণাবেক্ষণ - Bridges and culverts maintenance',
+      'অবৈধ রাস্তা খনন বা বাধা - Illegal road excavations or obstructions'
     ],
-    drainage: [
-      'ডার্টি ড্রেন',
-      'মশার সমস্যা',
-      'ব্লকেজ',
-      'অন্যান্য'
+    waste_management_sanitation: [
+      'অসংগৃহীত গৃহস্থালী বর্জ্য - Uncollected household waste',
+      'উপচে পড়া পাবলিক বিন - Overflowing public bins',
+      'অবৈধ ডাম্পিং সাইট - Illegal dumping sites',
+      'আবর্জনা ফেলার হটস্পট - Littering hotspots',
+      'ব্লক বা উপচে পড়া নর্দমা - Blocked or overflowing sewers',
+      'পাবলিক টয়লেট রক্ষণাবেক্ষণ - Public toilet maintenance'
     ],
-    road: [
-      'রাস্তা ভাঙা',
-      'গর্ত',
-      'অন্যান্য'
+    parks_public_spaces: [
+      'ক্ষতিগ্রস্ত খেলার সরঞ্জাম - Damaged playground equipment',
+      'অতিরিক্ত বেড়ে ওঠা ঘাস বা গাছ - Overgrown grass or trees',
+      'পার্কে ভাঙচুর - Vandalism in parks',
+      'পাবলিক বাগানের খারাপ রক্ষণাবেক্ষণ - Poor maintenance of public gardens',
+      'ভাঙা বেঞ্চ বা পার্কের আলো - Broken benches or park lights'
     ],
-    festival: [
-      'প্রাইভেট পূজা',
-      'কমিটি পূজা'
+    water_sanitation_services: [
+      'পানি বিভ্রাট বা কম চাপ - Water outages or low pressure',
+      'ফেটে যাওয়া পানির পাইপ - Burst water pipes',
+      'দূষিত পানি সরবরাহ - Contaminated water supply',
+      'ত্রুটিপূর্ণ পানির মিটার - Faulty water meters',
+      'পাবলিক কলের লিক - Leaking public taps'
     ],
-    medical_emergency: [
-      'হার্ট অ্যাটাক (Heart Attack)',
-      'স্ট্রোক (Stroke)', 
-      'শ্বাসকষ্ট (Breathing Problem)',
-      'গুরুতর দুর্ঘটনা (Serious Accident)',
-      'প্রসবকালীন জরুরি অবস্থা (Pregnancy Emergency)',
-      'খিঁচুনি (Seizure)',
-      'অজ্ঞান হয়ে যাওয়া (Unconsciousness)',
-      'গুরুতর রক্তক্ষরণ (Severe Bleeding)',
-      'বিষক্রিয়া (Poisoning)',
-      'অন্যান্য জরুরি অবস্থা (Other Emergency)'
+    electricity_power: [
+      'পাবলিক এলাকায় বিদ্যুৎ বিভ্রাট - Power outages in public areas',
+      'ত্রুটিপূর্ণ স্ট্রিটলাইট - Faulty streetlights',
+      'অবৈধ বিদ্যুৎ সংযোগ - Illegal power connections',
+      'পড়ে যাওয়া বিদ্যুৎ লাইন - Downed power lines',
+      'অনিরাপদ বৈদ্যুতিক খুঁটি - Unsafe electrical poles'
     ],
-    other: ['সাধারণ সমস্যা']
+    public_transport_traffic: [
+      'ক্ষতিগ্রস্ত ট্রাফিক সাইন বা সিগন্যাল - Damaged traffic signs or signals',
+      'অনিরাপদ পথচারী ক্রসিং - Unsafe pedestrian crossings',
+      'অবৈধ ট্যাক্সি র‍্যাঙ্ক বা স্টপ - Illegal taxi ranks or stops',
+      'খারাপভাবে রক্ষণাবেক্ষিত বাস/ট্যাক্সি শেল্টার - Poorly maintained bus/taxi shelters',
+      'গতি বৃদ্ধির অঞ্চল বা অনুপস্থিত স্পিড হাম্প - Speeding zones or missing speed humps'
+    ],
+    housing_community_facilities: [
+      'পৌর আবাসনের রক্ষণাবেক্ষণ - Maintenance of municipal housing',
+      'বরাদ্দ বা অপেক্ষার তালিকার সমস্যা - Allocation or waiting list issues',
+      'কমিউনিটি হল মেরামত - Community hall repairs',
+      'খেলার মাঠের রক্ষণাবেক্ষণ - Sports field maintenance',
+      'লাইব্রেরি বা ক্লিনিক রক্ষণাবেক্ষণ - Library or clinic upkeep'
+    ],
+    safety_law_enforcement: [
+      'অবৈধ ডাম্পিং বা শব্দ বিরক্তি - Illegal dumping or noise disturbances',
+      'পাবলিক সম্পত্তির ক্ষতি - Damage to public property',
+      'পরিত্যক্ত ভবন - Abandoned buildings',
+      'অবৈধ ব্যবসা বা ভবন সম্প্রসারণ - Illegal trading or building extensions',
+      'রাস্তায় হয়রানি বা অনিরাপদ অঞ্চল - Street harassment or unsafe zones',
+      'অকার্যকর সিসিটিভি বা রাস্তার টহল সমস্যা - Non-functioning CCTV or street patrol issues'
+    ],
+    education_social_services: [
+      'স্কুলের অবকাঠামো সমস্যা - School infrastructure issues',
+      'শিশু যত্ন বা বয়স্ক যত্ন সুবিধার উদ্বেগ - Childcare or elderly care facility concerns',
+      'কমিউনিটি আউটরিচ বা সামাজিক অনুদানের সমস্যা - Community outreach or social grant issues'
+    ],
+    others: [
+      'সাধারণ সমস্যা - General issues',
+      'পরিবেশগত সমস্যা - Environmental concerns',
+      'প্রাণী সংক্রান্ত সমস্যা - Animal-related issues',
+      'শব্দ দূষণ - Noise pollution',
+      'বায়ু দূষণ - Air pollution',
+      'কমিউনিটি ইভেন্ট সংক্রান্ত - Community event related',
+      'সরকারি সেবা সংক্রান্ত - Government service related',
+      'অন্যান্য (বিস্তারিত বর্ণনায় উল্লেখ করুন) - Others (please specify in description)'
+    ]
   };
 
   const handleChange = (e) => {
@@ -122,10 +168,14 @@ const ReportProblemPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if user is authenticated
-    if (!user) {
-      toast.error('প্রথমে লগইন করুন');
-      navigate('/login');
+    // Validate user details
+    if (!formData.userName.trim()) {
+      toast.error('আপনার নাম লিখুন');
+      return;
+    }
+
+    if (!formData.userPhone.trim()) {
+      toast.error('মোবাইল নাম্বার লিখুন');
       return;
     }
 
@@ -149,7 +199,8 @@ const ReportProblemPage = () => {
       subcategory: formData.subcategory,
       description: formData.description,
       location: formData.location,
-      user: user?.name
+      userName: formData.userName,
+      userPhone: formData.userPhone
     });
 
     setLoading(true);
@@ -160,32 +211,33 @@ const ReportProblemPage = () => {
       submitData.append('subcategory', formData.subcategory);
       submitData.append('description', formData.description);
       submitData.append('location', JSON.stringify(formData.location));
-      
-      if (category === 'electricity' && formData.pollNumber) {
-        submitData.append('pollNumber', formData.pollNumber);
-      }
-      
-      if (category === 'festival') {
-        if (formData.festivalDate) {
-          submitData.append('festivalDate', formData.festivalDate);
-        }
-        if (formData.requirements) {
-          submitData.append('requirements', formData.requirements);
-        }
+      submitData.append('userName', formData.userName);
+      submitData.append('userPhone', formData.userPhone);
+      if (formData.userEmail) {
+        submitData.append('userEmail', formData.userEmail);
       }
 
       images.forEach((image) => {
         submitData.append('images', image);
       });
 
-      const response = await axios.post('/api/problems', submitData, {
+      await axios.post(API_ENDPOINTS.PROBLEMS, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
       toast.success('সমস্যা সফলভাবে রিপোর্ট করা হয়েছে!');
-      navigate('/my-reports');
+      
+      // Show option to view reports
+      setTimeout(() => {
+        const viewReports = window.confirm('আপনার রিপোর্ট দেখতে চান? (Do you want to view your reports?)');
+        if (viewReports) {
+          navigate('/my-reports');
+        } else {
+          navigate('/categories');
+        }
+      }, 1000);
     } catch (error) {
       console.error('Submit error:', error);
       
@@ -227,6 +279,75 @@ const ReportProblemPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* User Details Section */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-800 mb-4">
+                আপনার তথ্য (Your Information)
+              </h3>
+              
+              {/* Name */}
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">
+                  নাম (Name) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    name="userName"
+                    value={formData.userName}
+                    onChange={handleChange}
+                    className="input-field pl-10"
+                    placeholder="আপনার পূর্ণ নাম লিখুন"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">
+                  মোবাইল নাম্বার (Mobile Number) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaPhone className="text-gray-400" />
+                  </div>
+                  <input
+                    type="tel"
+                    name="userPhone"
+                    value={formData.userPhone}
+                    onChange={handleChange}
+                    className="input-field pl-10"
+                    placeholder="01XXXXXXXXX"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email (Optional) */}
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  ইমেইল (Email) - ঐচ্ছিক (Optional)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaEnvelope className="text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    name="userEmail"
+                    value={formData.userEmail}
+                    onChange={handleChange}
+                    className="input-field pl-10"
+                    placeholder="example@email.com"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Subcategory */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
@@ -248,59 +369,6 @@ const ReportProblemPage = () => {
               </select>
             </div>
 
-            {/* Poll Number (for electricity) */}
-            {category === 'electricity' && (
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  খুঁটির নাম্বার (Pole Number)
-                </label>
-                <input
-                  type="text"
-                  name="pollNumber"
-                  value={formData.pollNumber}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="যদি জানা থাকে (If known)"
-                />
-              </div>
-            )}
-
-            {/* Festival Date (for festival) */}
-            {category === 'festival' && (
-              <>
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    পূজার তারিখ (Festival Date)
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaCalendar className="text-gray-400" />
-                    </div>
-                    <input
-                      type="date"
-                      name="festivalDate"
-                      value={formData.festivalDate}
-                      onChange={handleChange}
-                      className="input-field pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    প্রয়োজনীয়তা (Requirements)
-                  </label>
-                  <textarea
-                    name="requirements"
-                    value={formData.requirements}
-                    onChange={handleChange}
-                    className="input-field"
-                    rows="3"
-                    placeholder="কি কি প্রয়োজন তা লিখুন (Write what is needed)"
-                  ></textarea>
-                </div>
-              </>
-            )}
 
             {/* Description */}
             <div>

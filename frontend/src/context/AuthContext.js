@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (phone, password, isAdmin = false) => {
     try {
-      const endpoint = isAdmin ? '/api/auth/admin/login' : '/api/auth/login';
+      const endpoint = isAdmin ? API_ENDPOINTS.ADMIN_LOGIN : API_ENDPOINTS.LOGIN;
       const loginData = isAdmin ? { email: phone, password } : { phone, password };
       
       const response = await axios.post(endpoint, loginData);
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, phone, email, password) => {
     try {
-      const response = await axios.post('/api/auth/register', {
+      const response = await axios.post(API_ENDPOINTS.REGISTER, {
         name,
         phone,
         email,

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import { FaSignOutAlt, FaClock, FaSpinner, FaCheckCircle, FaChartBar } from 'react-icons/fa';
 
 const AdminDashboard = () => {
@@ -52,7 +53,7 @@ const AdminDashboard = () => {
   const fetchProblems = async () => {
     try {
       setLoading(true);
-      const url = filter === 'all' ? '/api/problems' : `/api/problems?status=${filter}`;
+      const url = filter === 'all' ? API_ENDPOINTS.PROBLEMS : `${API_ENDPOINTS.PROBLEMS}?status=${filter}`;
       const response = await axios.get(url);
       setProblems(response.data.problems);
     } catch (error) {
@@ -64,7 +65,7 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('/api/problems/stats/summary');
+      const response = await axios.get(API_ENDPOINTS.PROBLEMS_STATS);
       setStats(response.data);
     } catch (error) {
       console.error('Stats error:', error);
@@ -78,7 +79,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      await axios.put(`/api/problems/${problemId}/status`, statusUpdate);
+      await axios.put(API_ENDPOINTS.UPDATE_PROBLEM_STATUS(problemId), statusUpdate);
       toast.success('স্ট্যাটাস আপডেট করা হয়েছে');
       setSelectedProblem(null);
       setStatusUpdate({ status: '', adminNotes: '' });

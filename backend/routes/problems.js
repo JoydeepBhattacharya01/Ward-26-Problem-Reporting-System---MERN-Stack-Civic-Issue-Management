@@ -36,12 +36,14 @@ const upload = multer({
 
 // @route   POST /api/problems
 // @desc    Create a new problem report
-// @access  Private
-router.post('/', protect, upload.array('images', 5), [
+// @access  Public (Anonymous submissions allowed)
+router.post('/', upload.array('images', 5), [
   body('category').notEmpty().withMessage('ক্যাটাগরি প্রয়োজন'),
   body('subcategory').notEmpty().withMessage('সাব-ক্যাটাগরি প্রয়োজন'),
   body('description').notEmpty().withMessage('বিবরণ প্রয়োজন'),
-  body('location').notEmpty().withMessage('অবস্থান প্রয়োজন')
+  body('location').notEmpty().withMessage('অবস্থান প্রয়োজন'),
+  body('userName').notEmpty().withMessage('নাম প্রয়োজন'),
+  body('userPhone').notEmpty().withMessage('মোবাইল নাম্বার প্রয়োজন')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -56,7 +58,10 @@ router.post('/', protect, upload.array('images', 5), [
       location,
       pollNumber,
       festivalDate,
-      requirements
+      requirements,
+      userName,
+      userPhone,
+      userEmail
     } = req.body;
 
     // Parse location if it's a string
@@ -72,12 +77,12 @@ router.post('/', protect, upload.array('images', 5), [
     // Get uploaded image paths
     const imagePaths = req.files ? req.files.map(file => file.path) : [];
 
-    // Create problem
+    // Create problem (anonymous submission)
     const problem = await Problem.create({
-      userId: req.user._id,
-      userName: req.user.name,
-      userPhone: req.user.phone,
-      userEmail: req.user.email,
+      userId: null, // No user ID for anonymous submissions
+      userName,
+      userPhone,
+      userEmail: userEmail || null, // Email is optional
       category,
       subcategory,
       description,
@@ -105,6 +110,33 @@ router.post('/', protect, upload.array('images', 5), [
   } catch (error) {
     console.error('Problem creation error:', error);
     res.status(500).json({ message: 'সমস্যা রিপোর্ট করতে ব্যর্থ হয়েছে' });
+  }
+});
+
+// @route   GET /api/problems/user/:phone
+// @desc    Get user's problems by phone number (public)
+// @access  Public
+router.get('/user/:phone', async (req, res) => {
+  try {
+    const { phone } = req.params;
+    
+    if (!phone) {
+      return res.status(400).json({ message: 'Phone number is required' });
+    }
+
+    // Find problems by phone number
+    const problems = await Problem.find({ userPhone: phone })
+      .sort({ createdAt: -1 })
+      .select('-__v');
+
+    res.json({
+      success: true,
+      count: problems.length,
+      problems
+    });
+  } catch (error) {
+    console.error('Get user problems error:', error);
+    res.status(500).json({ message: 'সমস্যা লোড করতে ব্যর্থ হয়েছে' });
   }
 });
 
@@ -137,16 +169,11 @@ router.get('/search', protect, admin, async (req, res) => {
 });
 
 // @route   GET /api/problems
-// @desc    Get all problems (admin) or user's problems
-// @access  Private
-router.get('/', protect, async (req, res) => {
+// @desc    Get all problems (admin only now)
+// @access  Private/Admin
+router.get('/', protect, admin, async (req, res) => {
   try {
     let query = {};
-    
-    // If not admin, only show user's own problems
-    if (!req.user.isAdmin) {
-      query.userId = req.user._id;
-    }
 
     // Filter by status if provided
     if (req.query.status) {
@@ -186,20 +213,15 @@ router.get('/', protect, async (req, res) => {
 });
 
 // @route   GET /api/problems/:id
-// @desc    Get single problem by ID
-// @access  Private
-router.get('/:id', protect, async (req, res) => {
+// @desc    Get single problem by ID (admin only now)
+// @access  Private/Admin
+router.get('/:id', protect, admin, async (req, res) => {
   try {
     const problem = await Problem.findById(req.params.id)
       .populate('userId', 'name phone email');
 
     if (!problem) {
       return res.status(404).json({ message: 'সমস্যা পাওয়া যায়নি' });
-    }
-
-    // Check if user is admin or owner of the problem
-    if (!req.user.isAdmin && problem.userId._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'অ্যাক্সেস অস্বীকৃত' });
     }
 
     res.json(problem);

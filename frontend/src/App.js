@@ -6,12 +6,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import CategoriesPage from './pages/CategoriesPage';
 import ReportProblemPage from './pages/ReportProblemPage';
-import MyReportsPage from './pages/MyReportsPage';
+import UserReportsPage from './pages/UserReportsPage';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
@@ -22,35 +20,10 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
-
-            {/* Protected User Routes */}
-            <Route
-              path="/categories"
-              element={
-                <ProtectedRoute>
-                  <CategoriesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/report/:category"
-              element={
-                <ProtectedRoute>
-                  <ReportProblemPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-reports"
-              element={
-                <ProtectedRoute>
-                  <MyReportsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/report/:category" element={<ReportProblemPage />} />
+            <Route path="/my-reports" element={<UserReportsPage />} />
 
             {/* Protected Admin Routes */}
             <Route

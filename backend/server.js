@@ -69,7 +69,7 @@ const connectDB = async () => {
 };
 
 // Start server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {

@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: ward26-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://wardadmin:Ward26%402025@cluster0.irxsdob.mongodb.net/wardno26?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://ward26-problem-reporting.vercel.app
+      - key: ADMIN_EMAIL_1
+        value: joydeepbhattacharya668@gmail.com
+      - key: ADMIN_EMAIL_2
+        value: subhosreebanerjee.dms.154@gmail.com
+      - key: ADMIN_EMAIL_3
+        value: admin3@ward26.gov.in
+      - key: TWILIO_ACCOUNT_SID
+        value: your_twilio_account_sid_here
+      - key: TWILIO_AUTH_TOKEN
+        value: your_twilio_auth_token_here
+      - key: TWILIO_PHONE_NUMBER
+        value: your_twilio_phone_number_here
+      - key: TWILIO_WHATSAPP_NUMBER
+        value: +14155238886
+      - key: ADMIN_PHONE_1
+        value: +918017362522
+      - key: ADMIN_PHONE_2
+        value: +917029466263
+      - key: ADMIN_PHONE_3
+        value: +919433559980

@@ -8,7 +8,7 @@ const problemSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false // Made optional for anonymous submissions
   },
   userName: {
     type: String,
@@ -24,7 +24,18 @@ const problemSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['electricity', 'drainage', 'road', 'festival', 'medical_emergency', 'other']
+    enum: [
+      'infrastructure_public_works',
+      'waste_management_sanitation', 
+      'parks_public_spaces',
+      'water_sanitation_services',
+      'electricity_power',
+      'public_transport_traffic',
+      'housing_community_facilities',
+      'safety_law_enforcement',
+      'education_social_services',
+      'others'
+    ]
   },
   subcategory: {
     type: String,
