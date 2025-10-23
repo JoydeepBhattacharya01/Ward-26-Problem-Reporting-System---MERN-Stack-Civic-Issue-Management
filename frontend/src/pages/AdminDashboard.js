@@ -42,13 +42,13 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    if (!user?.isAdmin) {
+    if (!user || !user.isAdmin) {
       navigate('/');
       return;
     }
     fetchProblems();
     fetchStats();
-  }, [filter, user, navigate]);
+  }, [filter, user, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProblems = async () => {
     try {
