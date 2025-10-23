@@ -221,12 +221,14 @@ const ReportProblemPage = () => {
         submitData.append('images', image);
       });
 
-      await axios.post(API_ENDPOINTS.PROBLEMS, submitData, {
+      const response = await axios.post(API_ENDPOINTS.PROBLEMS, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 30000 // 30 second timeout
       });
 
+      console.log('Problem submitted successfully:', response.data);
       toast.success('সমস্যা সফলভাবে রিপোর্ট করা হয়েছে!');
       
       // Show option to view reports
@@ -241,16 +243,16 @@ const ReportProblemPage = () => {
     } catch (error) {
       console.error('Submit error:', error);
       
-      // Handle validation errors
-      if (error.response?.data?.errors) {
-        const errorMessages = error.response.data.errors.map(err => err.msg || err.message).join(', ');
-        toast.error(errorMessages);
-      } else if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.message) {
-        toast.error(`নেটওয়ার্ক সমস্যা: ${error.message}`);
+      if (error.code === 'ECONNABORTED') {
+        toast.error('সংযোগ সময়সীমা শেষ - আবার চেষ্টা করুন');
+      } else if (error.response?.status === 404) {
+        toast.error('API এন্ডপয়েন্ট পাওয়া যায়নি - সার্ভার চেক করুন');
+      } else if (error.response?.status >= 500) {
+        toast.error('সার্ভার সমস্যা - কিছুক্ষণ পর চেষ্টা করুন');
+      } else if (error.message.includes('Network Error')) {
+        toast.error('নেটওয়ার্ক সমস্যা - ইন্টারনেট সংযোগ চেক করুন');
       } else {
-        toast.error('সমস্যা রিপোর্ট করতে ব্যর্থ হয়েছে');
+        toast.error(`সমস্যা রিপোর্ট করতে ব্যর্থ হয়েছে: ${error.response?.data?.message || error.message}`);
       }
     } finally {
       setLoading(false);
