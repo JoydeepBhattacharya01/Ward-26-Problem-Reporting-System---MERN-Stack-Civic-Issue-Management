@@ -79,20 +79,54 @@ const AdminDashboard = () => {
     }
 
     try {
-      await axios.put(API_ENDPOINTS.UPDATE_PROBLEM_STATUS(problemId), statusUpdate);
+      console.log('Updating status for problem:', problemId);
+      console.log('Status update data:', statusUpdate);
+      console.log('API URL:', API_ENDPOINTS.UPDATE_PROBLEM_STATUS(problemId));
+      console.log('Auth header:', axios.defaults.headers.common['Authorization']);
+      
+      const response = await axios.put(API_ENDPOINTS.UPDATE_PROBLEM_STATUS(problemId), statusUpdate);
+      console.log('Status update response:', response.data);
+      
       toast.success('স্ট্যাটাস আপডেট করা হয়েছে');
       setSelectedProblem(null);
       setStatusUpdate({ status: '', adminNotes: '' });
       fetchProblems();
       fetchStats();
     } catch (error) {
-      toast.error('স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে');
+      console.error('Status update error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        toast.error('অনুমোদন ব্যর্থ হয়েছে - আবার লগইন করুন');
+      } else if (error.response?.status === 403) {
+        toast.error('অ্যাডমিন অ্যাক্সেস প্রয়োজন');
+      } else if (error.response?.status === 404) {
+        toast.error('সমস্যা পাওয়া যায়নি');
+      } else {
+        toast.error(`স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে: ${error.response?.data?.message || error.message}`);
+      }
     }
   };
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  // Debug function to test API connection
+  const testAPIConnection = async () => {
+    try {
+      console.log('Testing API connection...');
+      console.log('Current auth header:', axios.defaults.headers.common['Authorization']);
+      
+      const response = await axios.get(API_ENDPOINTS.PROBLEMS);
+      console.log('API test successful:', response.data);
+      toast.success('API connection working');
+    } catch (error) {
+      console.error('API test failed:', error);
+      toast.error('API connection failed');
+    }
   };
 
   const searchByComplaintId = async () => {
@@ -144,12 +178,20 @@ const AdminDashboard = () => {
               <h1 className="text-3xl font-bold mb-1">অ্যাডমিন ড্যাশবোর্ড (Admin Dashboard)</h1>
               <p className="text-blue-200">২৬ নম্বর ওয়ার্ড - সমস্যা ব্যবস্থাপনা (Ward 26 - Problem Management)</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all"
-            >
-              <FaSignOutAlt /> লগআউট (Logout)
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={testAPIConnection}
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all"
+              >
+                Test API
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all"
+              >
+                <FaSignOutAlt /> লগআউট (Logout)
+              </button>
+            </div>
           </div>
         </div>
       </div>
