@@ -41,47 +41,48 @@ function info(message) {
   console.log(`${colors.blue}ℹ️  ${message}${colors.reset}`);
 }
 
-// 1. Check .env file exists
+// 1. Check environment configuration
 console.log('📋 Checking environment configuration...');
 const envPath = path.join(__dirname, '.env');
-if (!fs.existsSync(envPath)) {
-  error('.env file not found. Copy .env.example to .env');
-} else {
-  success('.env file exists');
-  
-  // Load and validate environment variables
+
+// Load .env if it exists (local development), otherwise use injected env vars (production)
+if (fs.existsSync(envPath)) {
+  success('.env file exists (local development)');
   require('dotenv').config();
-  
-  const requiredVars = [
-    'MONGODB_URI',
-    'JWT_SECRET',
-    'PORT',
-    'FRONTEND_URL'
-  ];
-  
-  const optionalVars = [
-    'TWILIO_ACCOUNT_SID',
-    'TWILIO_AUTH_TOKEN',
-    'TWILIO_PHONE_NUMBER',
-    'ADMIN_PHONE_1'
-  ];
-  
-  requiredVars.forEach(varName => {
-    if (!process.env[varName]) {
-      error(`Required environment variable ${varName} is not set`);
-    } else {
-      success(`${varName} is configured`);
-    }
-  });
-  
-  optionalVars.forEach(varName => {
-    if (!process.env[varName]) {
-      warning(`Optional variable ${varName} is not set (notifications may not work)`);
-    } else {
-      success(`${varName} is configured`);
-    }
-  });
+} else {
+  info('No .env file found - using environment variables (production mode)');
 }
+
+// Validate environment variables (works for both local and production)
+const requiredVars = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'PORT',
+  'FRONTEND_URL'
+];
+
+const optionalVars = [
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_PHONE_NUMBER',
+  'ADMIN_PHONE_1'
+];
+
+requiredVars.forEach(varName => {
+  if (!process.env[varName]) {
+    error(`Required environment variable ${varName} is not set`);
+  } else {
+    success(`${varName} is configured`);
+  }
+});
+
+optionalVars.forEach(varName => {
+  if (!process.env[varName]) {
+    warning(`Optional variable ${varName} is not set (notifications may not work)`);
+  } else {
+    success(`${varName} is configured`);
+  }
+});
 
 // 2. Check package.json and dependencies
 console.log('\n📦 Checking dependencies...');
