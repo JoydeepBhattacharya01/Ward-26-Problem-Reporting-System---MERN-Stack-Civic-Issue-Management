@@ -125,20 +125,6 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  // Debug function to test API connection
-  const testAPIConnection = async () => {
-    try {
-      console.log('Testing API connection...');
-      console.log('Current auth header:', axios.defaults.headers.common['Authorization']);
-      
-      const response = await axios.get(API_ENDPOINTS.PROBLEMS);
-      console.log('API test successful:', response.data);
-      toast.success('API connection working');
-    } catch (error) {
-      console.error('API test failed:', error);
-      toast.error('API connection failed');
-    }
-  };
 
   const searchByComplaintId = async () => {
     if (!searchId.trim()) {
@@ -148,15 +134,16 @@ const AdminDashboard = () => {
 
     try {
       setSearching(true);
-      const response = await axios.get(`/api/problems/search?complaintId=${searchId.trim()}`);
+      const response = await axios.get(`${API_ENDPOINTS.PROBLEMS}/search?complaintId=${searchId.trim()}`);
       setSearchResult(response.data.problem);
-      toast.success('Complaint found!');
+      toast.success('কমপ্লেইন পাওয়া গেছে! (Complaint found!)');
     } catch (error) {
       if (error.response?.status === 404) {
-        toast.error('Complaint not found');
+        toast.error('কমপ্লেইন পাওয়া যায়নি (Complaint not found)');
         setSearchResult(null);
       } else {
-        toast.error('Search failed');
+        toast.error('খোঁজা ব্যর্থ হয়েছে (Search failed)');
+        console.error('Search error:', error);
       }
     } finally {
       setSearching(false);
@@ -190,12 +177,6 @@ const AdminDashboard = () => {
               <p className="text-blue-200">২৬ নম্বর ওয়ার্ড - সমস্যা ব্যবস্থাপনা (Ward 26 - Problem Management)</p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={testAPIConnection}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all"
-              >
-                Test API
-              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all"
