@@ -2,7 +2,7 @@
 
 **"আমার এলাকা, আমার দায়িত্ব"**
 
-An initiative by **Hon'ble Councillor Susobhan Mondal (Michael), Ward No. 26, Krishnapur**
+An initiative by **Hon'ble Councilor Susobhan Mondal (Michael), Ward No. 26, Krishnapur**
 
 A comprehensive MERN stack web application for Ward 26 citizens to report civic issues directly to the ward administration without requiring user registration.
 

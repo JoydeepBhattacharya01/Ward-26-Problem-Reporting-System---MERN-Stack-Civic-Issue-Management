@@ -29,7 +29,7 @@ const ReportProblemPage = () => {
     infrastructure_public_works: 'অবকাঠামো ও জনকাজ (Infrastructure & Public Works)',
     waste_management_sanitation: 'বর্জ্য ব্যবস্থাপনা ও স্যানিটেশন (Waste Management & Sanitation)',
     parks_public_spaces: 'পার্ক ও পাবলিক স্পেস (Parks & Public Spaces)',
-    water_sanitation_services: 'পানি ও স্যানিটেশন সেবা (Water & Sanitation Services)',
+    water_sanitation_services: 'জল ও স্যানিটেশন সেবা (Water & Sanitation Services)',
     electricity_power: 'বিদ্যুৎ ও পাওয়ার (Electricity & Power)',
     public_transport_traffic: 'পাবলিক ট্রান্সপোর্ট ও ট্রাফিক (Public Transport & Traffic)',
     housing_community_facilities: 'আবাসন ও কমিউনিটি সুবিধা (Housing & Community Facilities)',
@@ -63,10 +63,10 @@ const ReportProblemPage = () => {
       'ভাঙা বেঞ্চ বা পার্কের আলো - Broken benches or park lights'
     ],
     water_sanitation_services: [
-      'পানি বিভ্রাট বা কম চাপ - Water outages or low pressure',
-      'ফেটে যাওয়া পানির পাইপ - Burst water pipes',
-      'দূষিত পানি সরবরাহ - Contaminated water supply',
-      'ত্রুটিপূর্ণ পানির মিটার - Faulty water meters',
+      'জল বিভ্রাট বা কম চাপ - Water outages or low pressure',
+      'ফেটে যাওয়া জলের পাইপ - Burst water pipes',
+      'দূষিত জল সরবরাহ - Contaminated water supply',
+      'ত্রুটিপূর্ণ জলের মিটার - Faulty water meters',
       'পাবলিক কলের লিক - Leaking public taps'
     ],
     electricity_power: [

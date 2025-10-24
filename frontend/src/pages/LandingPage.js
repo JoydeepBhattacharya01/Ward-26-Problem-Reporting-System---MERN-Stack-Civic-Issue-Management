@@ -116,7 +116,7 @@ const LandingPage = () => {
         <div className="text-center">
           <div className="bg-white rounded-lg shadow-md p-6 inline-block">
             <p className="text-gray-700 mb-2">
-              <span className="font-semibold">যোগাযোগ:</span> ২৬ নম্বর ওয়ার্ড কাউন্সিলর অফিস
+              <span className="font-semibold">Contact:</span> Ward 26 Councillor Office
             </p>
             <p className="text-gray-600 text-sm">
               সেবায় নিয়োজিত আছি আমরা
