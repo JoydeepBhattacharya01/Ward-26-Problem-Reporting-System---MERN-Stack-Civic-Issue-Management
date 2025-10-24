@@ -104,3 +104,21 @@ backend/uploads/*
 # Notification logs (contain sensitive data)
 backend/notification-logs.json
 backend/notification-consistency-report.json
+
+# Production optimization files
+*.map
+*.tsbuildinfo
+
+# Performance monitoring
+.clinic/
+.0x/
+
+# Security scan results
+.snyk
+
+# Bundle analysis
+bundle-analyzer-report.html
+
+# Cache directories
+.eslintcache
+.stylelintcache
