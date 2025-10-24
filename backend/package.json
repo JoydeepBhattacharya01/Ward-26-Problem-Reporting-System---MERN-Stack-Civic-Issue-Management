@@ -9,7 +9,9 @@
     "build": "echo 'No build step required for Node.js'",
     "validate": "node validate-startup.js",
     "prestart": "node validate-startup.js",
-    "safe-start": "npm run validate && npm start"
+    "safe-start": "npm run validate && npm start",
+    "keep-alive": "node keep-alive.js",
+    "test-health": "curl https://ward-26-problem-reporting-system-mern.onrender.com/api/health || curl http://localhost:8000/api/health"
   },
   "engines": {
     "node": ">=18.0.0",

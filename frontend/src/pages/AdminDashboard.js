@@ -21,6 +21,17 @@ const AdminDashboard = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const categoryNames = {
+    infrastructure_public_works: 'অবকাঠামো ও জনকাজ (Infrastructure & Public Works)',
+    waste_management_sanitation: 'বর্জ্য ব্যবস্থাপনা ও স্যানিটেশন (Waste Management & Sanitation)',
+    parks_public_spaces: 'পার্ক ও পাবলিক স্পেস (Parks & Public Spaces)',
+    water_sanitation_services: 'পানি ও স্যানিটেশন সেবা (Water & Sanitation Services)',
+    electricity_power: 'বিদ্যুৎ ও পাওয়ার (Electricity & Power)',
+    public_transport_traffic: 'পাবলিক ট্রান্সপোর্ট ও ট্রাফিক (Public Transport & Traffic)',
+    housing_community_facilities: 'হাউজিং ও কমিউনিটি সুবিধা (Housing & Community Facilities)',
+    safety_law_enforcement: 'নিরাপত্তা ও আইন প্রয়োগ (Safety & Law Enforcement)',
+    education_social_services: 'শিক্ষা ও সামাজিক সেবা (Education & Social Services)',
+    others: 'অন্যান্য (Others)',
+    // Backward compatibility for old categories
     electricity: 'বিদ্যুৎ সমস্যা',
     drainage: 'নর্দমা সমস্যা',
     road: 'রাস্তাঘাট সমস্যা',

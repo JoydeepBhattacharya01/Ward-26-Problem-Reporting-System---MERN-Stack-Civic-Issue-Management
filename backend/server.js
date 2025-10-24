@@ -57,13 +57,37 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/problems', require('./routes/problems'));
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+// Health check route with database status
+app.get('/api/health', async (req, res) => {
+  const health = {
+    status: 'OK',
     message: '২৬ নম্বর ওয়ার্ড API চালু আছে',
-    timestamp: new Date().toISOString()
-  });
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: {
+      status: 'disconnected',
+      readyState: mongoose.connection.readyState
+    }
+  };
+
+  // Check database connection
+  try {
+    if (mongoose.connection.readyState === 1) {
+      // Ping database to verify connection
+      await mongoose.connection.db.admin().ping();
+      health.database.status = 'connected';
+    } else {
+      health.status = 'DEGRADED';
+      health.database.status = 'disconnected';
+    }
+  } catch (error) {
+    health.status = 'DEGRADED';
+    health.database.status = 'error';
+    health.database.error = error.message;
+  }
+
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // Error handling middleware
