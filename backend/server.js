@@ -70,7 +70,13 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Simple health check route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ 
+    status: 'ok',
+    service: 'Ward 26 Problem Reporting System',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // API Routes
